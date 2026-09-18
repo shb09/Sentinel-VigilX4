@@ -4,6 +4,9 @@ node_modules/
 # Generated frontend build (rebuilt via `npm run build`)
 apps/web/dist/
 
+# tsc intermediate output (rebuilt via `npm run build --prefix apps/extension`)
+apps/extension/dist/tmp/
+
 # NOTE: apps/extension/dist/ is intentionally COMMITTED — it is the
 # loadable unpacked-extension artifact (Chrome/Firefox) for reviewers.
 
