@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Acme CRM — Customers</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #f4f6f8; color: #1a1a1a; margin: 0; padding: 32px; }
+  .card { max-width: 560px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+  label { display: block; font-size: 13px; color: #64748b; margin-top: 12px; }
+  input, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; }
+  button { margin-top: 16px; padding: 10px 16px; border-radius: 8px; border: 0; background: #0f766e; color: white; cursor: pointer; }
+  #status { margin-top: 12px; font-size: 14px; color: #0f766e; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Acme CRM</h1>
+  <p>Customer record: <strong id="customer-name">Rahul Sharma</strong> (<span id="customer-email">rahul@example.com</span>)</p>
+  <label for="search">Search customers</label>
+  <input id="search" name="search" placeholder="Type a name…" />
+  <label for="ticket">Support ticket</label>
+  <textarea id="ticket" name="ticket" rows="4">Ticket #1042 — login issue, pending update.</textarea>
+  <button id="update-btn" type="button">Update ticket</button>
+  <button id="send-btn" type="button" style="background:#334155">Send response</button>
+  <div id="status" role="status"></div>
+</div>
+<script>
+  document.getElementById('update-btn').addEventListener('click', () => {
+    document.getElementById('status').textContent = 'Saved: ticket updated for Rahul Sharma.';
+  });
+  document.getElementById('send-btn').addEventListener('click', () => {
+    document.getElementById('status').textContent = 'Sent: response emailed to rahul@example.com.';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { width: 300px; font-family: system-ui, sans-serif; background: #0b0e12; color: #f2f7f5; margin: 0; padding: 16px; }
+      h3 { margin: 0; letter-spacing: 0.25em; font-size: 14px; }
+      .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #10b98133; color: #6ee7b7; border: 1px solid #6ee7b744; }
+      .row { font-size: 12px; color: #94a3b8; margin: 6px 0; word-break: break-all; }
+      .counts { display: flex; gap: 12px; font-size: 12px; font-family: monospace; margin: 8px 0; }
+      .card { border: 1px solid #ffffff22; border-radius: 10px; padding: 10px; font-size: 12px; background: #ffffff08; }
+      .BLOCK { color: #fca5a5; font-weight: bold; }
+      .ALLOW { color: #6ee7b7; font-weight: bold; }
+      .REVIEW { color: #fcd34d; font-weight: bold; }
+      button { margin-top: 12px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ffffff22; background: #ffffff11; color: white; cursor: pointer; }
+      button:hover { background: #ffffff22; }
+    </style>
+  </head>
+  <body>
+    <h3>SENTINEL</h3>
+    <p class="row">Protection: <span class="badge">ON</span></p>
+    <p class="row" id="page">Current page: —</p>
+    <p class="row" id="health">Backend: checking…</p>
+    <p class="row" id="agent">Agent: —</p>
+    <div class="counts"><span id="c-allow">Allowed 0</span><span id="c-review">Review 0</span><span id="c-block">Blocked 0</span></div>
+    <div class="card" id="latest">Latest decision: none yet</div>
+    <button id="open">OPEN SENTINEL</button>
+    <script src="popup.js"></script>
+  </body>
+</html>

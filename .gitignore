@@ -1,0 +1,32 @@
+# Dependencies (lock files ARE committed for reproducible installs)
+node_modules/
+
+# Generated frontend build (rebuilt via `npm run build`)
+apps/web/dist/
+
+# NOTE: apps/extension/dist/ is intentionally COMMITTED — it is the
+# loadable unpacked-extension artifact (Chrome/Firefox) for reviewers.
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Local runtime state (never commit)
+apps/server/audit.jsonl
+*.log
+
+# Secrets / local env
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# TypeScript incremental build info
+*.tsbuildinfo
