@@ -73,6 +73,56 @@ function renderVault(refs) {
     foot.textContent = "Raw values received: 0 — masking enforced server-side.";
     box.append(foot);
 }
+/* Live page-observed masked fields. Source of truth is background storage
+   (metadata only — this view can never display a raw value because none
+   is ever transmitted or stored). */
+function renderLive(fields, rejected) {
+    const box = el("live");
+    if (!box)
+        return;
+    box.innerHTML = "";
+    if (!fields.length) {
+        box.textContent = "Type into the demo form — masked references appear here live.";
+        return;
+    }
+    for (const f of fields) {
+        const row = document.createElement("div");
+        row.className = "maskrow";
+        const label = document.createElement("span");
+        label.textContent = f.label;
+        const bar = document.createElement("span");
+        bar.className = "maskbar";
+        bar.textContent = "████████";
+        const ref = document.createElement("span");
+        ref.className = "ref";
+        ref.textContent = f.reference;
+        const cls = document.createElement("span");
+        cls.className = `cls-${f.dataClass}`;
+        cls.textContent = f.dataClass;
+        row.append(label, bar, ref, cls);
+        box.append(row);
+    }
+    const foot = document.createElement("div");
+    foot.className = "row";
+    foot.textContent =
+        `Fields observed: ${fields.length} · Masked references: ${fields.length} · ` +
+            `Raw values received: 0 · Masking ● ACTIVE · Rejected: ${rejected}`;
+    box.append(foot);
+}
+async function renderLiveForActiveTab() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const stored = await chrome.storage.local.get(["liveFields", "rejectedMessages"]);
+        const all = (stored.liveFields ?? {});
+        const fields = Object.values(all)
+            .filter((f) => tab?.id === undefined || f.tabId === tab.id || f.tabId === -1)
+            .sort((a, b) => a.updatedAt - b.updatedAt);
+        renderLive(fields, Number(stored.rejectedMessages ?? 0));
+    }
+    catch {
+        /* storage/tabs unavailable — section keeps its placeholder */
+    }
+}
 async function render() {
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -97,6 +147,17 @@ async function render() {
         renderCounts(entries);
         renderLatest(entries[0] ?? null);
         renderVault((v.refs ?? []));
+        await renderLiveForActiveTab();
+        try {
+            chrome.storage.onChanged.addListener((changes, area) => {
+                if (area === "local" && (changes.liveFields || changes.rejectedMessages)) {
+                    void renderLiveForActiveTab(); // live update, no popup refresh needed
+                }
+            });
+        }
+        catch {
+            /* storage events unavailable — initial render stands */
+        }
         const agent = el("agent");
         if (agent)
             agent.textContent = `Agent: ${String(s.state ?? "IDLE")}`;

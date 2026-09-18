@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc && node build.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/live-masking.test.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.280",

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sentinel",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Sentinel authorization layer — live protection status",
   "action": {
     "default_popup": "popup.html"
@@ -13,6 +13,19 @@
   ],
   "host_permissions": [
     "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost/demo/*",
+        "http://127.0.0.1/demo/*"
+      ],
+      "js": [
+        "classify.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
   ],
   "background": {
     "scripts": [

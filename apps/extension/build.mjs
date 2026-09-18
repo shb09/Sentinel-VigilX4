@@ -20,7 +20,9 @@ function toClassic(src) {
 for (const dir of ["dist/chrome", "dist/firefox"]) {
   mkdirSync(dir, { recursive: true });
   copyFileSync("src/popup.html", `${dir}/popup.html`);
-  for (const js of ["background.js", "popup.js"]) {
+  // background/popup are classic extension scripts; classify/content are
+  // classic content scripts (content runs after classify — order matters).
+  for (const js of ["background.js", "popup.js", "classify.js", "content.js"]) {
     const src = `dist/tmp/${js}`;
     if (!existsSync(src)) {
       console.error(`missing ${src} — did tsc emit fail?`);
@@ -30,14 +32,26 @@ for (const dir of ["dist/chrome", "dist/firefox"]) {
   }
 }
 
+/* Match patterns intentionally ignore ports, so one localhost pattern covers
+   the backend (:8000) and the dev server (:5173) demo pages. No <all_urls>,
+   no broad hosts — content scripts run on controlled demo pages only. */
+const contentScripts = [
+  {
+    matches: ["http://localhost/demo/*", "http://127.0.0.1/demo/*"],
+    js: ["classify.js", "content.js"],
+    run_at: "document_idle",
+  },
+];
+
 const base = {
   manifest_version: 3,
   name: "Sentinel",
-  version: "0.8.0",
+  version: "0.9.0",
   description: "Sentinel authorization layer — live protection status",
   action: { default_popup: "popup.html" },
   permissions: ["storage", "tabs", "alarms"],
   host_permissions: ["http://localhost/*"],
+  content_scripts: contentScripts,
 };
 
 writeFileSync(
