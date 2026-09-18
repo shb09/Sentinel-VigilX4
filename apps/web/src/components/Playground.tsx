@@ -42,6 +42,14 @@ function toneTitle(tone: Tone) {
       : "text-red-200";
 }
 
+/* Live demo page per scenario — the REAL page the agent acts on,
+   served by the backend and embedded here so judges see cause + effect. */
+const SCENARIO_PAGES: Record<string, { url: string; label: string }> = {
+  safe: { url: "/demo/crm/", label: "Acme CRM — customer record" },
+  sensitive: { url: "/demo/crm/", label: "Acme CRM — support response" },
+  attack: { url: "/demo/malicious-page/", label: "Mirrored help article (untrusted)" },
+};
+
 /* One consistent Sentinel result card for every scenario outcome. */
 function ResultCard({
   tone,
@@ -152,6 +160,7 @@ export default function Playground({
   const [approving, setApproving] = useState(false);
   const [denying, setDenying] = useState(false);
   const [resolution, setResolution] = useState<Resolution | null>(null);
+  const [pageRefresh, setPageRefresh] = useState(0);
   const busyRef = useRef(false);
   const resolved = resolution !== null;
 
@@ -181,6 +190,7 @@ export default function Playground({
       setError(e instanceof Error ? e.message : "run failed");
     } finally {
       setRunning(false);
+      setPageRefresh((n) => n + 1);
       refreshBrowser();
     }
   };
@@ -216,6 +226,7 @@ export default function Playground({
     } finally {
       setApproving(false);
       busyRef.current = false;
+      setPageRefresh((n) => n + 1);
       refreshBrowser();
     }
   };
@@ -250,6 +261,7 @@ export default function Playground({
     } finally {
       setDenying(false);
       busyRef.current = false;
+      setPageRefresh((n) => n + 1);
       refreshBrowser();
     }
   };
@@ -526,6 +538,29 @@ export default function Playground({
               </motion.div>
             )}
           </AnimatePresence>
+          {(() => {
+            const page = SCENARIO_PAGES[selected] ?? SCENARIO_PAGES.safe;
+            return (
+              <div className="mt-3 overflow-hidden rounded-xl border border-white/10">
+                <div className="flex items-center gap-2 bg-black/30 px-3 py-2 font-mono text-[11px] text-slate-400">
+                  <span className="tracking-widest">LIVE DEMO PAGE</span>
+                  <span className="truncate">
+                    {page.label} · {page.url}
+                  </span>
+                </div>
+                <iframe
+                  key={`${page.url}?live=${pageRefresh}`}
+                  title="Live demo page"
+                  src={`${page.url}?live=${pageRefresh}`}
+                  className="h-80 w-full bg-white"
+                />
+                <p className="bg-black/30 px-3 py-1.5 text-[11px] text-slate-500">
+                  The real page the agent acts on — watch it change as Sentinel
+                  allows execution.
+                </p>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>
