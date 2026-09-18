@@ -31,11 +31,47 @@ function renderLatest(e) {
     const detail = document.createElement("div");
     detail.textContent = `${e.dataClass} · ${e.provenance} · ${e.destination} (${e.policyId})`;
     box.append(head, detail);
+    if (e.valueRef) {
+        const masked = document.createElement("div");
+        masked.textContent = `Data seen: ${e.valueRef} (masked reference — value never leaves the server)`;
+        box.append(masked);
+    }
     if (e.decision === "BLOCK" && !e.executed) {
         const note = document.createElement("div");
         note.textContent = "Browser execution prevented.";
         box.append(note);
     }
+}
+function renderVault(refs) {
+    const box = el("vault");
+    if (!box)
+        return;
+    box.innerHTML = "";
+    if (!refs.length) {
+        box.textContent = "Vault unreachable";
+        return;
+    }
+    for (const r of refs) {
+        const row = document.createElement("div");
+        row.className = "maskrow";
+        const label = document.createElement("span");
+        label.textContent = r.label;
+        const bar = document.createElement("span");
+        bar.className = "maskbar";
+        bar.textContent = "████████";
+        const ref = document.createElement("span");
+        ref.className = "ref";
+        ref.textContent = r.ref;
+        const cls = document.createElement("span");
+        cls.className = `cls-${r.dataClass}`;
+        cls.textContent = r.dataClass;
+        row.append(label, bar, ref, cls);
+        box.append(row);
+    }
+    const foot = document.createElement("div");
+    foot.className = "row";
+    foot.textContent = "Raw values received: 0 — masking enforced server-side.";
+    box.append(foot);
 }
 async function render() {
     try {
@@ -48,10 +84,11 @@ async function render() {
         /* no tabs permission context */
     }
     try {
-        const [h, a, s] = await Promise.all([
+        const [h, a, s, v] = await Promise.all([
             fetch(`${API}/api/health`).then((r) => r.json()),
             fetch(`${API}/api/audit?limit=100`).then((r) => r.json()),
             fetch(`${API}/api/agent/state`).then((r) => r.json()),
+            fetch(`${API}/api/vault`).then((r) => r.json()).catch(() => ({ refs: [] })),
         ]);
         const health = el("health");
         if (health)
@@ -59,6 +96,7 @@ async function render() {
         const entries = (a.entries ?? []);
         renderCounts(entries);
         renderLatest(entries[0] ?? null);
+        renderVault((v.refs ?? []));
         const agent = el("agent");
         if (agent)
             agent.textContent = `Agent: ${String(s.state ?? "IDLE")}`;

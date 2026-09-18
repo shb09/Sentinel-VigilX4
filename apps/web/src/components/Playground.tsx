@@ -11,7 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { api } from "../lib/api";
-import type { AgentRun, Scenario, SentinelDecision } from "../lib/types";
+import type { ActionProposal, AgentRun, Scenario, SentinelDecision } from "../lib/types";
 
 /* Human-decision outcome, bound to the exact actionId that produced it.
    Rendered only when it matches the currently displayed run. */
@@ -161,6 +161,15 @@ export default function Playground({
   const [denying, setDenying] = useState(false);
   const [resolution, setResolution] = useState<Resolution | null>(null);
   const [pageRefresh, setPageRefresh] = useState(0);
+  // Challenge Sentinel: judge-crafted action, real /api/decide verdict.
+  const [chType, setChType] = useState("submit");
+  const [chData, setChData] = useState("PII");
+  const [chTrust, setChTrust] = useState("UNTRUSTED");
+  const [chDest, setChDest] = useState("UNTRUSTED_EXTERNAL");
+  const [chProv, setChProv] = useState("INDIRECT_PAGE");
+  const [chTarget, setChTarget] = useState("#verify-btn");
+  const [chVerdict, setChVerdict] = useState<SentinelDecision | null>(null);
+  const [chJudging, setChJudging] = useState(false);
   const busyRef = useRef(false);
   const resolved = resolution !== null;
 
@@ -270,8 +279,32 @@ export default function Playground({
     await api.reset().catch(() => {});
     setRun(null);
     setResolution(null);
+    setChVerdict(null);
     setBrowserUrl("about:blank");
     onActivity();
+  };
+
+  const handleChallenge = async () => {
+    setChJudging(true);
+    setChVerdict(null);
+    try {
+      const action = {
+        actionId: `challenge-${crypto.randomUUID().slice(0, 8)}`,
+        type: chType,
+        target: chTarget || "#verify-btn",
+        source: "challenge",
+        destination: chDest as ActionProposal["destination"],
+        provenance: chProv,
+        dataClass: chData as ActionProposal["dataClass"],
+        trust: chTrust as ActionProposal["trust"],
+      };
+      setChVerdict(await api.decide(action));
+      onActivity();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "challenge failed");
+    } finally {
+      setChJudging(false);
+    }
   };
 
   const current = scenarios.find((s) => s.id === selected);
@@ -561,6 +594,67 @@ export default function Playground({
               </div>
             );
           })()}
+          <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
+            <p className="text-xs font-bold tracking-widest text-slate-200">
+              CHALLENGE SENTINEL — YOU BE THE ATTACKER
+            </p>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Craft any action. The real policy engine judges it — nothing executes.
+            </p>
+            <div className="mt-2 grid grid-cols-2 gap-2 font-mono text-xs sm:grid-cols-3">
+              {(
+                [
+                  ["type", chType, setChType, ["navigate", "click", "fill", "submit"]],
+                  ["data", chData, setChData, ["PUBLIC", "ORDINARY", "PII", "SENSITIVE", "SECRET", "CREDENTIAL"]],
+                  ["trust", chTrust, setChTrust, ["TRUSTED", "UNKNOWN", "UNTRUSTED"]],
+                  ["dest", chDest, setChDest, ["SAME_ORIGIN", "TRUSTED_ORIGIN", "KNOWN_EXTERNAL", "UNKNOWN_EXTERNAL", "UNTRUSTED_EXTERNAL"]],
+                  ["provenance", chProv, setChProv, ["USER", "AGENT_PLAN", "TRUSTED_PAGE", "INDIRECT_PAGE"]],
+                ] as [string, string, (v: string) => void, string[]][]
+              ).map(([label, val, set, opts]) => (
+                <label key={label} className="block">
+                  <span className="text-slate-500">{label}</span>
+                  <select
+                    value={val}
+                    onChange={(e) => set(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-2 py-1.5 text-slate-200"
+                  >
+                    {opts.map((o) => (
+                      <option key={o}>{o}</option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+              <label className="block">
+                <span className="text-slate-500">target</span>
+                <input
+                  value={chTarget}
+                  onChange={(e) => setChTarget(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-2 py-1.5 text-slate-200"
+                />
+              </label>
+            </div>
+            <button
+              onClick={handleChallenge}
+              disabled={chJudging}
+              className="btn-primary mt-2 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs disabled:opacity-50"
+            >
+              {chJudging ? <Loader2 size={13} className="animate-spin" /> : <ShieldCheck size={13} />}
+              Judge this action
+            </button>
+            {chVerdict && (
+              <div className="mt-2">
+                <ResultCard
+                  tone={chVerdict.decision === "ALLOW" ? "allow" : chVerdict.decision === "REVIEW" ? "review" : "block"}
+                  badge={chVerdict.decision}
+                  title={chVerdict.decision}
+                  policyId={chVerdict.policyId}
+                  reason={chVerdict.reason}
+                  execStatus="NOT EXECUTED (verdict only)"
+                  executed={false}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

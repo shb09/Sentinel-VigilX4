@@ -23,6 +23,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ task, maxSteps }),
     }),
+  decide: (action: ActionProposal) =>
+    req<import("./types").SentinelDecision>("/api/decide", {
+      method: "POST",
+      body: JSON.stringify({ action }),
+    }),
   approve: (actionId: string) =>
     req<{ actionId: string }>("/api/approve", {
       method: "POST",

@@ -82,7 +82,11 @@ denials = DenialStore()
 _audit_lock = Lock()
 
 
-def append_audit(decision: SentinelDecision, executed: bool = False) -> None:
+def append_audit(
+    decision: SentinelDecision,
+    executed: bool = False,
+    value_ref: str | None = None,
+) -> None:
     """Audit log contains references only — never raw secret values."""
     entry = {
         "ts": datetime.now(timezone.utc).isoformat(),
@@ -94,6 +98,7 @@ def append_audit(decision: SentinelDecision, executed: bool = False) -> None:
         "provenance": decision.provenance,
         "trust": decision.trust.value,
         "destination": decision.destination.value,
+        "valueRef": value_ref,
         "executed": executed,
     }
     with _audit_lock:

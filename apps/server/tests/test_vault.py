@@ -55,3 +55,4 @@ def test_audit_never_contains_secrets(tmp_path, monkeypatch):
     assert "rahul@example.com" not in content
     assert "demo-only" not in content
     assert "vault-audit-1" in content
+    assert "[EMAIL_1]" in content  # reference logged, value never

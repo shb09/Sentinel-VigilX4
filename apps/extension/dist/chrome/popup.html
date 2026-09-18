@@ -12,6 +12,13 @@
       .BLOCK { color: #fca5a5; font-weight: bold; }
       .ALLOW { color: #6ee7b7; font-weight: bold; }
       .REVIEW { color: #fcd34d; font-weight: bold; }
+      .maskrow { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: monospace; margin: 3px 0; }
+      .maskbar { letter-spacing: 1px; color: #64748b; }
+      .ref { color: #6ee7b7; }
+      .cls-PII { color: #fcd34d; } .cls-SENSITIVE { color: #fdba74; }
+      .cls-SECRET, .cls-CREDENTIAL { color: #fca5a5; }
+      .cls-ORDINARY, .cls-PUBLIC { color: #94a3b8; }
+      .section { font-size: 10px; letter-spacing: 0.2em; color: #64748b; margin: 10px 0 4px; }
       button { margin-top: 12px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ffffff22; background: #ffffff11; color: white; cursor: pointer; }
       button:hover { background: #ffffff22; }
     </style>
@@ -24,6 +31,8 @@
     <p class="row" id="agent">Agent: —</p>
     <div class="counts"><span id="c-allow">Allowed 0</span><span id="c-review">Review 0</span><span id="c-block">Blocked 0</span></div>
     <div class="card" id="latest">Latest decision: none yet</div>
+    <div class="section">MASKED DATA — LIVE</div>
+    <div class="card" id="vault">Loading vault…</div>
     <button id="open">OPEN SENTINEL</button>
     <script src="popup.js"></script>
   </body>

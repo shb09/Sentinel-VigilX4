@@ -83,7 +83,32 @@ destination — BLOCK, executed false. The browser never moved. I'm not
 claiming perfect injection detection. The *authorization decision* is the
 boundary, and it's independent of whatever fooled the agent."**
 
-## 3:55 — Close (25s)
+## 3:55 — The masking moment (30s)
+
+*Open the Sentinel toolbar extension.*
+
+**"Notice what the extension knows about Rahul: name, email, phone, API key —
+every one masked. The extension holds references like [EMAIL_1], never
+values. Masking happens server-side before anything leaves the backend —
+there is literally nothing to leak."**
+
+## 4:25 — The wow: you be the attacker (60s)
+
+*Scroll to CHALLENGE SENTINEL.*
+
+**"Don't take my word for it — you try to break it. Pick any combination:
+exfiltrate a credential to an untrusted server…"**
+
+*Set SECRET + UNTRUSTED_EXTERNAL, hit Judge.*
+
+**"BLOCK — and nothing executed. Now try something innocent…"**
+
+*Set ORDINARY + SAME_ORIGIN, hit Judge.*
+
+**"ALLOW. Same engine, same verdicts, your input, judged live. The three
+scenarios aren't scripted outcomes — they're just the opening acts."**
+
+## 5:25 — Close (25s)
 
 *Scroll to Audit.*
 

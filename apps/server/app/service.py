@@ -31,7 +31,7 @@ def deny(action: ActionProposal) -> SentinelDecision:
     denials.deny(action.actionId)
     decision = denial_decision(action)
     assert decision is not None
-    append_audit(decision, executed=False)
+    append_audit(decision, executed=False, value_ref=action.valueRef)
     return decision
 
 
@@ -61,12 +61,12 @@ def execute_if_allowed(action: ActionProposal) -> dict:
             trust=action.trust,
             destination=action.destination,
         )
-        append_audit(decision, executed=False)
+        append_audit(decision, executed=False, value_ref=action.valueRef)
         return {"decision": decision, "executed": False, "result": None}
 
     decision = authorize(action)
     if decision.decision != policy.Decision.ALLOW:
-        append_audit(decision, executed=False)
+        append_audit(decision, executed=False, value_ref=action.valueRef)
         return {"decision": decision, "executed": False, "result": None}
 
     try:
@@ -79,12 +79,12 @@ def execute_if_allowed(action: ActionProposal) -> dict:
                 to_run = action.model_copy(update={"value": resolved})
         result = browser.execute_authorized(to_run)
     except Exception as e:  # never fake success
-        append_audit(decision, executed=False)
+        append_audit(decision, executed=False, value_ref=action.valueRef)
         return {
             "decision": decision,
             "executed": False,
             "result": None,
             "error": str(e)[:300],
         }
-    append_audit(decision, executed=True)
+    append_audit(decision, executed=True, value_ref=action.valueRef)
     return {"decision": decision, "executed": True, "result": result}

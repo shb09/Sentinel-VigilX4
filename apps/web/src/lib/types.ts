@@ -86,4 +86,5 @@ export interface AuditEntry {
   trust: Trust;
   destination: Destination;
   executed: boolean;
+  valueRef?: string | null;
 }

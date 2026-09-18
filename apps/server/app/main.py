@@ -57,7 +57,7 @@ def health():
 def decide(req: DecideRequest):
     denied = denial_decision(req.action)
     if denied is not None:
-        append_audit(denied)
+        append_audit(denied, value_ref=req.action.valueRef)
         return denied
     auth = req.authorization
     claimed_from_store = False
@@ -71,7 +71,7 @@ def decide(req: DecideRequest):
         claimed_from_store or auth is not None
     ):
         approvals.consume(req.action.actionId)
-    append_audit(decision)
+    append_audit(decision, value_ref=req.action.valueRef)
     return decision
 
 
